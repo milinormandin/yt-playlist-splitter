@@ -35,3 +35,7 @@ Objectives:
     - If NO:
       - Create new M/Y playlists based off all videos in the Source playlist
       - END
+
+Pre-requisites:
+  1. Set up your project and credentials: [https://developers.google.com/youtube/v3/quickstart/python#step_1_set_up_your_project_and_credentials]
+  2. Add client_secrets .json file to the project folder
