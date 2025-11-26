@@ -10,28 +10,34 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
-scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
+scopes = ['https://www.googleapis.com/auth/youtube.readonly']
+# Replace with your client_secret json
+CLIENT_SECRETS_FILE = 'client_secret_1008844831738-32n15naetu5pcnk62tn0beno4ds4i565.apps.googleusercontent.com.json'
+# Replace with your source playlist id
+SOURCE_PLAYLIST_ID = 'PLEwYo0c5mGnB88HBUetQT4RNsDp9yicdO'
 
-def main():
+# Authentication to Youtube
+def auth(client_secrets_file: str):
     # Disable OAuthlib's HTTPS verification when running locally.
     # *DO NOT* leave this option enabled in production.
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
     api_service_name = "youtube"
     api_version = "v3"
-    # Replace with your client_secret json
-    client_secrets_file = "client_secret_1008844831738-32n15naetu5pcnk62tn0beno4ds4i565.apps.googleusercontent.com.json"
 
     # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
         client_secrets_file, scopes)
     credentials = flow.run_local_server()
-    youtube = googleapiclient.discovery.build(
+    return googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
 
-    request = youtube.channels().list(
-        part="snippet,contentDetails,statistics",
-        mine=True
+def main():
+    youtube = auth(CLIENT_SECRETS_FILE)
+    request = youtube.playlistItems().list(
+        part ='snippet',
+        playlistId = SOURCE_PLAYLIST_ID
+        maxResults = 5 # todo: change to 50
     )
     response = request.execute()
 

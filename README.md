@@ -1,6 +1,9 @@
 Objectives:
 - Split existing youtube playlist into mini playlists based on the month/year (M/Y) the video was added to the playlist
 - M/Y playlists are updated based on updates to the Source playlist
+- M/Y playlists have the following naming convention:
+  - [MM]_[YY]_[last 4 digits of playlist_id]
+  - Example: 10_25_icdO
 - Example: 
   - Input: Source Playlist
     - Video A (Added 10/1/25)
@@ -39,3 +42,5 @@ Objectives:
 Pre-requisites:
   1. Set up your project and credentials: [https://developers.google.com/youtube/v3/quickstart/python#step_1_set_up_your_project_and_credentials]
   2. Add client_secrets .json file to the project folder
+  3. Retrieve your Source playlist id
+     1. Can be found in the URL of your Source playlist: "https://www.youtube.com/playlist?list=[PLAYLIST ID]"
