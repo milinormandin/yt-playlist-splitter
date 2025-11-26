@@ -1,9 +1,5 @@
 Objectives:
 - Split existing youtube playlist into mini playlists based on the month/year (M/Y) the video was added to the playlist
-- M/Y playlists are updated based on updates to the Source playlist
-- M/Y playlists have the following naming convention:
-  - [MM]_[YY]_[last 4 digits of playlist_id]
-  - Example: 10_25_icdO
 - Example: 
   - Input: Source Playlist
     - Video A (Added 10/1/25)
@@ -15,6 +11,11 @@ Objectives:
       - Video B
     - Playlist B 11/25
       - Video C
+Details:
+- M/Y playlists are updated based on updates to the Source playlist
+- M/Y playlists have the following naming convention:
+  - [MM]_[YY]_[first 4 characters of Source playlist_id][last 4 characters of Source playlist_id]
+  - Example: 10_25_PLEWICDO
 - Before creating a new playlist, check:
   - Are there are any existing M/Y playlists?:
     - If YES:
