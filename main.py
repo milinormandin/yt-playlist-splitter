@@ -6,6 +6,7 @@ import googleapiclient.errors
 from time import sleep
 from datetime import date
 from dateutil import parser
+from dateutil.relativedelta import relativedelta
 
 
 scopes = ['https://www.googleapis.com/auth/youtube.readonly']
@@ -36,12 +37,26 @@ def auth(client_secrets_file: str):
 
 def format_id(id: str) -> str:
     '''
-    Format id for M/Y playlist naming convention
+    Format id into 8 char string for M/Y playlist naming convention
     '''
     id = id.upper()
     return f'{id[:4]}{id[len(id)-4:]}'
 
+def create_playlist_title(target_month: int, target_year: int, id: str) -> str:
+    '''
+    Create playlist title formatted with the proper naming convention. Example: '10_25_PLEWICDO'
+    '''
+    return f'{target_month}_{str(target_year)[2:]}_{format_id(id)}'
 
+def create_playlist_titles(valid_playlist_videos: list[dict]) -> list[str]:
+    '''
+    Create list of playlist titles based on valid video list from the Source playlist
+    '''
+    # Get list of M/Y dates to make new playlists for
+    my_dates = list(set([(i['added_date'].year, i['added_date'].month) for i in valid_playlist_videos]))
+
+    # Generate playlist titles based off of dates
+    return [create_playlist_title(target_month=d[1],target_year=d[0],  id=SOURCE_PLAYLIST_ID) for d in my_dates]
 
 def is_valid_playlist(name: str) -> bool:
     '''
@@ -108,18 +123,18 @@ def get_valid_playlists(youtube) -> list[str]:
     return playlist_titles
 
 
-def parse_target_date(playlist_name: str):
+def parse_target_date(playlist_title: str):
     '''
     Get datetime object from playlist title
     '''
-    target_month = int(playlist_name[:2])
-    target_year = int(f'20{playlist_name[3:5]}')
+    target_month = int(playlist_title[:2])
+    target_year = int(f'20{playlist_title[3:5]}')
     return date(target_year, target_month, 1)
 
 
 def add_valid_playlist_videos(response, target_date, playlist_videos, found_target_date) -> tuple[dict, bool]:
     '''
-    Checks response object for playlist videos added equal or after the provided target date
+    Checks response object for playlist videos added on or after the provided target date
     '''
     for item in response['items']:
         added_date = parser.isoparse(item['snippet']['publishedAt']).date()
@@ -137,7 +152,7 @@ def add_valid_playlist_videos(response, target_date, playlist_videos, found_targ
 
 def get_valid_videos(youtube, target_date: date) -> list[dict]:
     '''
-    Get list of video data (publishedAt, videoId) from the source playlist added equal or after the provided target date
+    Get list of video data (added_date, video_id) from the source playlist added on or after the provided target date
     '''
     response = get_playlist_videos(youtube)
 
@@ -165,24 +180,37 @@ def main():
 
     # Check if there are any existing M/Y playlists
     # playlist_titles = get_valid_playlists(youtube)
-    playlist_titles = []
+    valid_playlist_titles = []
 
-    playlist_name = '10_25_PLEWICDO'
-    target_date = parse_target_date(playlist_name)
+    # playlist_name = '10_25_PLEWICDO'
+    # target_date = parse_target_date(playlist_name)
+    target_date = date(2025, 10, 1)
 
-    if (playlist_titles):
-        print(len(playlist_titles))
-        print(playlist_titles)
+    if (valid_playlist_titles):
+        print(len(valid_playlist_titles))
+        print(valid_playlist_titles)
     else:
+        # Case of no existing M/Y playlists
         # Create new M/Y playlists based off all videos in the Source playlist
         # '2025-11-25T18:43:57Z'
-        # look at all (or videos after a certain date) videos in source playlist
-        # get their date and id
+        # look at all (or videos after a certain date) videos in source playlist X
+        # get their date and id (valid_playlist_videos) X
+        # get list of M/Y to make playlists for X
+        # generate playlist titles X
+        # create new playlist with M/Y naming convention (assume list of videos is already filtered)
+            # check that playlist doesn't exist
+        # populate playlist with list of valid videos
     
-        playlist_videos = get_valid_videos(youtube, target_date)
+        valid_playlist_videos = get_valid_videos(youtube, target_date)
 
+        playlist_titles = create_playlist_titles(valid_playlist_videos)
 
-        print(len(playlist_videos))
+        for playlist_title in playlist_titles:
+            playlist_date = parse_target_date(playlist_title)
+            # Grab videos whose add date is within the playlist date
+            my_videos = [video for video in valid_playlist_videos if video['added_date'] >= playlist_date and video['added_date'] < playlist_date + relativedelta(months=1)]
+            print(playlist_date)
+            print(my_videos)
         
     
 
