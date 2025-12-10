@@ -48,3 +48,5 @@ Pre-requisites:
   2. Add client_secrets .json file to the project folder
   3. Retrieve your Source playlist id
      1. Can be found in the URL of your Source playlist: "https://www.youtube.com/playlist?list=[PLAYLIST ID]"
+  4. Rename .env_example to .env
+     1. Replace values with your client_secrets path and Source playlist id
