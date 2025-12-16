@@ -50,3 +50,7 @@ Pre-requisites:
      1. Can be found in the URL of your Source playlist: "https://www.youtube.com/playlist?list=[PLAYLIST ID]"
   4. Rename .env_example to .env
      1. Replace values with your client_secrets path and Source playlist id
+
+References:
+  1. [Youtube API Reference](https://developers.google.com/youtube/v3/docs/playlists)
+  2. [Youtube API Code Examples](https://developers.google.com/youtube/v3/code_samples/code_snippets)

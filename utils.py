@@ -11,9 +11,8 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Replace with your client_secret json
+
 CLIENT_SECRETS_FILE = os.getenv('CLIENT_SECRETS_FILE')
-# Replace with your source playlist id
 SOURCE_PLAYLIST_ID = os.getenv('SOURCE_PLAYLIST_ID')
 
 def auth():
@@ -26,7 +25,7 @@ def auth():
 
     api_service_name = "youtube"
     api_version = "v3"
-    scopes = ['https://www.googleapis.com/auth/youtube.readonly']
+    scopes = ['https://www.googleapis.com/auth/youtube']
 
 
     # Get credentials and create an API client
@@ -42,7 +41,7 @@ def format_id(id: str) -> str:
     '''
     id = id.upper()
     return f'{id[:4]}{id[len(id)-4:]}'
-
+# TODO: have leading 0s if number < 10
 def create_playlist_title(target_month: int, target_year: int, id: str) -> str:
     '''
     Create playlist title formatted with the proper naming convention. Example: '10_25_PLEWICDO'
@@ -94,6 +93,59 @@ def get_playlist_videos(youtube, next_page_token=''):
         maxResults = 50,
         pageToken = next_page_token
         )
+    return request.execute()
+
+def create_playlist(youtube, title: str, description: str, privacy_status:str = 'unlisted'):
+    '''
+    Creates a new playlist
+
+    Possible values for privacy_status:
+    - Public: Anyone can view
+    - Unlisted: Only those with the link can view
+    - Private: Only the creator can view
+    '''
+    request = youtube.playlists().insert(
+        part="snippet,status",
+        body={
+          "snippet": {
+            "title": f'{title}',
+            "description": f'{description}',
+            "defaultLanguage": "en"
+          },
+          "status": {
+            "privacyStatus": f'{privacy_status}'
+          }
+        }
+    )
+    return request.execute()
+
+def add_video_list_to_playlist(youtube, playlist_id: str, valid_playlist_videos: list[dict]) -> list[any]:
+    '''
+    Adds a list of videos to a specified playlist
+    '''
+    added_video_results = []
+    
+    for video in valid_playlist_videos:
+        response = add_one_video_to_playlist(youtube, playlist_id, video['video_id'])
+        added_video_results.append(response)
+    return added_video_results
+
+def add_one_video_to_playlist(youtube, playlist_id: str, video_id: str):
+    '''
+    Adds a single video to a specified playlist
+    '''
+    request = youtube.playlistItems().insert(
+        part="snippet",
+        body={
+          "snippet": {
+            "playlistId": f'{playlist_id}',
+            "resourceId": {
+              "kind": "youtube#video",
+              "videoId": f'{video_id}'
+            }
+          }
+        }
+    )
     return request.execute()
 
 
