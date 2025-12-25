@@ -41,12 +41,22 @@ def format_id(id: str) -> str:
     '''
     id = id.upper()
     return f'{id[:4]}{id[len(id)-4:]}'
-# TODO: have leading 0s if number < 10
+
 def create_playlist_title(target_month: int, target_year: int, id: str) -> str:
     '''
     Create playlist title formatted with the proper naming convention. Example: '10_25_PLEWICDO'
     '''
-    return f'{target_month}_{str(target_year)[2:]}_{format_id(id)}'
+    
+    # Format target year to be the last 2 digits of the year eg. 2025 -> 25
+    target_year = str(target_year)[2:]
+    
+    # Add leading 0 if month or year is less than 10 
+    if target_month < 10:
+        target_month = f'0{target_month}'
+    if target_year < 10:
+        target_year = f'0{target_year}'
+    
+    return f'{target_month}_{target_year}_{format_id(id)}'
 
 def create_playlist_titles(valid_playlist_videos: list[dict]) -> list[str]:
     '''
@@ -56,7 +66,7 @@ def create_playlist_titles(valid_playlist_videos: list[dict]) -> list[str]:
     my_dates = list(set([(i['added_date'].year, i['added_date'].month) for i in valid_playlist_videos]))
 
     # Generate playlist titles based off of dates
-    return [create_playlist_title(target_month=d[1],target_year=d[0],  id=SOURCE_PLAYLIST_ID) for d in my_dates]
+    return [create_playlist_title(target_month=d[1],target_year=d[0], id=SOURCE_PLAYLIST_ID) for d in my_dates]
 
 def is_valid_playlist(name: str) -> bool:
     '''
@@ -100,20 +110,20 @@ def create_playlist(youtube, title: str, description: str, privacy_status:str = 
     Creates a new playlist
 
     Possible values for privacy_status:
-    - Public: Anyone can view
-    - Unlisted: Only those with the link can view
-    - Private: Only the creator can view
+    - public: Anyone can view
+    - unlisted: Only those with the link can view
+    - private: Only the creator can view
     '''
     request = youtube.playlists().insert(
         part="snippet,status",
         body={
           "snippet": {
-            "title": f'{title}',
-            "description": f'{description}',
+            "title": title,
+            "description": description,
             "defaultLanguage": "en"
           },
           "status": {
-            "privacyStatus": f'{privacy_status}'
+            "privacyStatus": privacy_status
           }
         }
     )
@@ -138,10 +148,10 @@ def add_one_video_to_playlist(youtube, playlist_id: str, video_id: str):
         part="snippet",
         body={
           "snippet": {
-            "playlistId": f'{playlist_id}',
+            "playlistId": playlist_id,
             "resourceId": {
               "kind": "youtube#video",
-              "videoId": f'{video_id}'
+              "videoId": video_id
             }
           }
         }
@@ -178,7 +188,9 @@ def get_valid_playlists(youtube) -> list[str]:
 
 def parse_target_date(playlist_title: str):
     '''
-    Get datetime object from playlist title
+    Parse datetime object from playlist title
+    
+    Date will be the 1st day of the provided Month Year
     '''
     target_month = int(playlist_title[:2])
     target_year = int(f'20{playlist_title[3:5]}')

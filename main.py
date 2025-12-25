@@ -1,7 +1,8 @@
 from utils import *
+import pickle
 
 def main():
-    youtube = auth()
+    # youtube = auth()
 
     # Check if there are any existing M/Y playlists
     # playlist_titles = get_valid_playlists(youtube)
@@ -9,7 +10,7 @@ def main():
 
     # playlist_name = '10_25_PLEWICDO'
     # target_date = parse_target_date(playlist_name)
-    target_date = date(2025, 10, 1)
+    target_date = date(2025, 11, 1)
 
     if (valid_playlist_titles):
         print(len(valid_playlist_titles))
@@ -26,26 +27,37 @@ def main():
         create new playlist with M/Y naming convention (assume list of videos is already filtered) X
         add single video to playlist X
         populate playlist with list of valid videos ?
-            - ISSUE: Quota for requests have been exceeded. Might be an option to increase quota?: www.reddit.com/r/ifttt/comments/pfx55y/youtube_the_request_cannot_be_completed_because/
-            - ERROR MSG: <HttpError 403 when requesting https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&alt=json returned "The request cannot be completed because you have exceeded your <a href="/youtube/v3/getting-started#quota">quota</a>.". Details: "[{'message': 'The request cannot be completed because you have exceeded your <a href="/youtube/v3/getting-started#quota">quota</a>.', 'domain': 'youtube.quota', 'reason': 'quotaExceeded'}]">
+            - ISSUE: Quota for requests have been exceeded. 10k daily query limit. 1.8M minute, 180K per min per user
+            - SOLUTION: export valid videos from source playlist as pickle for testing purposes 
         '''        
     
-        valid_playlist_videos = get_valid_videos(youtube, target_date)
+        # valid_playlist_videos = get_valid_videos(youtube, target_date)
 
-        playlist_titles = create_playlist_titles(valid_playlist_videos)
+        
+        # Save playlist video data to file for testing
+        # with open('valid_playlist_videos.pkl', 'wb') as f:
+        #     pickle.dump(valid_playlist_videos, f)
 
-        for playlist_title in playlist_titles:
-            playlist_date = parse_target_date(playlist_title)
-            # Filter videos whose add date is within the current playlist month date
-            my_videos = [video for video in valid_playlist_videos if video['added_date'] >= playlist_date and video['added_date'] < playlist_date + relativedelta(months=1)]
+  
+        # Open the file in read-binary mode ('rb') and load the data
+        with open('valid_playlist_videos.pkl', 'rb') as file:
+            valid_playlist_videos = pickle.load(file)
+        print(valid_playlist_videos)
 
-            # Create new playlist
-            playlist_result = create_playlist(youtube, f'{playlist_title}', f'Generated playlist for videos added in {playlist_date.month}/{playlist_date.year}')
-            new_playlist_id = playlist_result['id']
+        # playlist_titles = create_playlist_titles(valid_playlist_videos)
 
-            # Add all valid videos to playlist
-            res = add_video_list_to_playlist(youtube, new_playlist_id, my_videos)
-            print(res)
+        # for playlist_title in playlist_titles:
+        #     playlist_date = parse_target_date(playlist_title)
+        #     # Filter videos whose add date is within the current playlist month date
+        #     my_videos = [video for video in valid_playlist_videos if video['added_date'] >= playlist_date and video['added_date'] < playlist_date + relativedelta(months=1)]
+
+        #     # Create new playlist
+        #     playlist_result = create_playlist(youtube, f'{playlist_title}', f'Generated playlist for videos added in {playlist_date.month}/{playlist_date.year}')
+        #     new_playlist_id = playlist_result['id']
+
+        #     # Add all valid videos to playlist
+        #     res = add_video_list_to_playlist(youtube, new_playlist_id, my_videos)
+        #     print(res)
     
 
 if __name__ == "__main__":
