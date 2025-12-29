@@ -204,15 +204,16 @@ def add_valid_playlist_videos(response, target_date, playlist_videos, found_targ
     for item in response['items']:
         added_date = parser.isoparse(item['snippet']['publishedAt']).date()
         video_id = item['snippet']['resourceId']['videoId']
+        title = item['snippet']['title']
         
         if target_date:
             if added_date >= target_date:
-                playlist_videos.append({'added_date': added_date, 'video_id': video_id})
+                playlist_videos.append({'added_date': added_date, 'video_id': video_id, 'title': title})
             else:
                 found_target_date = True
                 break
         else:
-            playlist_videos.append({'added_date': added_date, 'video_id': video_id})
+            playlist_videos.append({'added_date': added_date, 'video_id': video_id, 'title': title})
     return (playlist_videos, found_target_date)
 
 def get_valid_videos(youtube, target_date: date) -> list[dict]:

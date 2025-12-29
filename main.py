@@ -2,7 +2,7 @@ from utils import *
 import pickle
 
 def main():
-    # youtube = auth()
+    youtube = auth()
 
     # Check if there are any existing M/Y playlists
     # playlist_titles = get_valid_playlists(youtube)
@@ -21,7 +21,8 @@ def main():
         Create new M/Y playlists based off all videos in the Source playlist
         '2025-11-25T18:43:57Z'
         look at all (or videos after a certain date) videos in source playlist X
-        get their date and id (valid_playlist_videos) X
+        get their date, id (valid_playlist_videos) X
+            add title and check for any other useful additional info
         get list of M/Y to make playlists for X
         generate playlist titles X
         create new playlist with M/Y naming convention (assume list of videos is already filtered) X
@@ -31,12 +32,12 @@ def main():
             - SOLUTION: export valid videos from source playlist as pickle for testing purposes 
         '''        
     
-        # valid_playlist_videos = get_valid_videos(youtube, target_date)
+        valid_playlist_videos = get_valid_videos(youtube, target_date)
 
         
         # Save playlist video data to file for testing
-        # with open('valid_playlist_videos.pkl', 'wb') as f:
-        #     pickle.dump(valid_playlist_videos, f)
+        with open('valid_playlist_videos.pkl', 'wb') as f:
+            pickle.dump(valid_playlist_videos, f)
 
   
         # Open the file in read-binary mode ('rb') and load the data
